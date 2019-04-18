@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/zwuup-jx/qucikstart:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/zwuup-jx/qucikstart:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: qucikstart
+        chartPath: charts/qucikstart
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/zwuup-jx/qucikstart'
+          image.tag: '{{.DIGEST_HEX}}'
